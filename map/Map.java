@@ -64,6 +64,8 @@ public class Map {
         }
     }
     void setMagicWall(int magicNums)     {
+        MagicWalls = new int[magicNums][2];
+        
         Random random = new Random();
         Set<int[]> wallsIndex = Auxiliary.generateDistinctArrays(magicNums);
         for (int[] wallid : wallsIndex) {
@@ -162,22 +164,6 @@ public class Map {
     }
    
 }
-
-class House {
-    private String type;
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public String getType() {
-        return type;
-    }
-    public int[][] findNeighbors(House[][] house, int rowIndex, int colIndex)     
-    {
-        return new int[0][0];
-    }
-}
-
 class Wall extends House {
     private int[] accessibleFrom;
     Wall()  {
