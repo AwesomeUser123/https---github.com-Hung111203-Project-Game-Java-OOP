@@ -1,12 +1,19 @@
 package map;
+import animal.*;
 import auxiliary.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-
 public class Map {
     private House[][] house;
+    private int[][] MagicWalls;
+    public House[][] getHouse()     {
+        return house;
+    }
+    public int[][] getMagicLists()  {
+        return MagicWalls;
+    }
     public Map() {
         house = new House[9][9];
         for (int i = 1; i < 9; i += 2) { // Loop through each room-wall-room row
@@ -65,16 +72,13 @@ public class Map {
     }
     void setMagicWall(int magicNums)     {
         MagicWalls = new int[magicNums][2];
-        
+        int i=0;
         Random random = new Random();
         Set<int[]> wallsIndex = Auxiliary.generateDistinctArrays(magicNums);
         for (int[] wallid : wallsIndex) {
-            House houseWall = house[wallid[0]][wallid[1]];
-            houseWall.setType("Magic");
-            Wall wall = (Wall)houseWall;
-            int[][] neigboringRooms = wall.findNeighbors(house, wallid[0], wallid[1]);
-            int choice = random.nextInt(2);
-            wall.setAccessible(neigboringRooms[choice]);
+            house[wallid[0]][wallid[1]].setType("Magic");
+            MagicWalls[i][0]=wallid[0];
+            MagicWalls[i++][1]=wallid[1];
         }
     }    
 
@@ -88,8 +92,6 @@ public class Map {
         }
     }
     
-
-
     private void PossibleGameplay(String AnimalType) {
     int[][] connectedToRoot = new int[9][9]; connectedToRoot[1][1]=1;
     Random rand = new Random();
@@ -99,6 +101,7 @@ public class Map {
     int[] initialRoom = {1, 1};
     adjacentRooms.add(initialRoom);
     while (rooms.size() < 16) {
+        // create a graph such such that there is at least a path to access all of the rooms
         if (!adjacentRooms.isEmpty()) {
             int choice = rand.nextInt(adjacentRooms.size());
             int[] ChosenRoom = adjacentRooms.get(choice);
@@ -130,11 +133,7 @@ public class Map {
                     }
                     connectedToRoot[ChosenRoom[0]][ChosenRoom[1]] = 1;
                     connectedToRoot[adjacentChosenRoom[0]][adjacentChosenRoom[1]]=1;
-                    if (house[ChosenRoom[0]][ChosenRoom[1]] instanceof Room)    {
-                        Room thisRoom = (Room) house[ChosenRoom[0]][ChosenRoom[1]];
-                        int[] temp={ChosenRoom[0],ChosenRoom[1]};
-                        thisRoom.setSource(temp);
-                    }
+                    
                 }
             }
 
@@ -165,17 +164,18 @@ public class Map {
    
 }
 class Wall extends House {
-    private int[] accessibleFrom;
+    private int currentState;
+
     Wall()  {
-        accessibleFrom = new int[2];
+        currentState=0;
     }
-    public void setAccessible(int[] roomid)    {
-        accessibleFrom[0] = roomid[0];
-        accessibleFrom[1] = roomid[1];
+    void setWallState()  {
+        currentState=1;
     }
-    public int[] accessibleFrom()  {
-        return accessibleFrom;
+    int getWallState()   {
+        return currentState;
     }
+    
     @Override
     public int[][] findNeighbors(House[][] house, int rowIndex, int colIndex)    {
         int[][] result = new int[2][2];
@@ -197,6 +197,16 @@ class Wall extends House {
     }
 }
 class Room extends House {
+    private NPC npcAnimals;
+    public String getNPC()  {
+        // the return type and this method can be changed later depends on the defined methods and attributes in NPC.java
+        return npcAnimals.getType();
+    }
+    public Room()  {
+    }    
+    public void setNPC(NPC npc)     {
+        this.npcAnimals = npc;
+    }
     List<int[]> SourceRoom = new ArrayList<>();
     public void setSource(int[] SourceRoom)     {
         int temp[] = {SourceRoom[0],SourceRoom[1]};
